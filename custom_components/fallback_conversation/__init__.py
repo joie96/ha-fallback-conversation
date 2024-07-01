@@ -24,6 +24,7 @@ from .const import (
     DEBUG_LEVEL_VERBOSE_DEBUG,
     DOMAIN,
     STRANGE_ERROR_RESPONSES,
+    EVENT_CONVERSATION_NO_INTENT_MATCH,
 )
 
 
@@ -94,11 +95,13 @@ class FallbackConversationAgent(conversation.AbstractConversationAgent):
                 result,
             )
             if result.response.response_type != intent.IntentResponseType.ERROR and result.response.speech['plain']['original_speech'].lower() not in STRANGE_ERROR_RESPONSES:
-                return result
+                if "no_intent_match" not in result.response.speech['plain']['original_speech'].lower():
+                    return result
             all_results.append(result)
 
         intent_response = intent.IntentResponse(language=user_input.language)
-        err = "Complete fallback failure. No Conversation Agent was able to respond."
+        #err = "Complete fallback failure. No Conversation Agent was able to respond."
+        err = ""
         if debug_level == DEBUG_LEVEL_LOW_DEBUG:
             r = all_results[-1].response.speech['plain']
             err += f"\n{r.get('agent_name', 'UNKNOWN')} responded with: {r.get('original_speech', r['speech'])}"
@@ -113,6 +116,14 @@ class FallbackConversationAgent(conversation.AbstractConversationAgent):
         result = conversation.ConversationResult(
             conversation_id=result.conversation_id,
             response=intent_response
+        )
+
+        self.hass.bus.async_fire(
+            EVENT_CONVERSATION_NO_INTENT_MATCH,
+            {
+                "result": result,
+                "user_input": user_input,
+            },
         )
 
         return result
