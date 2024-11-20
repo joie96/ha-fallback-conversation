@@ -11,6 +11,7 @@ DEBUG_LEVEL_LOW_DEBUG = "low"
 DEBUG_LEVEL_VERBOSE_DEBUG = "verbose"
 
 EVENT_CONVERSATION_NO_INTENT_MATCH = "fallback_conversation.no_intent_match"
+EVENT_CONVERSATION_INTENT_MATCH = "fallback_conversation.intent_match"
 
 DEFAULT_NAME = "Fallback Conversation Agent"
 DEFAULT_DEBUG_LEVEL = DEBUG_LEVEL_NO_DEBUG

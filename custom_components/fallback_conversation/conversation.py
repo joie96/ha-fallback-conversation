@@ -25,6 +25,7 @@ from .const import (
     DOMAIN,
     STRANGE_ERROR_RESPONSES,
     EVENT_CONVERSATION_NO_INTENT_MATCH,
+    EVENT_CONVERSATION_INTENT_MATCH,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -134,6 +135,13 @@ class FallbackConversationAgent(conversation.ConversationEntity, conversation.Ab
             )
             if result.response.response_type != intent.IntentResponseType.ERROR and result.response.speech['plain']['original_speech'].lower() not in STRANGE_ERROR_RESPONSES:
                 if "no_intent_match" not in result.response.speech['plain']['original_speech'].lower():
+                    self.hass.bus.async_fire(
+                        EVENT_CONVERSATION_INTENT_MATCH,
+                        {
+                            "result": result,
+                            "user_input": user_input,
+                        },
+                    )
                     return result
             all_results.append(result)
 
